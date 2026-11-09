@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-ledger-entries
+      author: casino
+      changes:
+        - createTable:
+            tableName: ledger_entries
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: wallet_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    unique: false
+                    foreignKeyName: fk_ledger_entries_wallet
+                    references: wallets(id)
+              - column:
+                  name: amount
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: type
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp with time zone
+                  defaultValueComputed: now()
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: ALTER TABLE ledger_entries ADD CONSTRAINT chk_ledger_entries_not_zero CHECK (amount <> 0)
+        - createIndex:
+            indexName: idx_ledger_entries_wallet_id
+            tableName: ledger_entries
+            columns:
+              - column:
+                  name: wallet_id
